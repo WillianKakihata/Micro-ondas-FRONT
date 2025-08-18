@@ -1,12 +1,12 @@
 
 import { Route, Routes } from 'react-router'
-import './App.css'
+import MicroOndasPage from './routes/MicroOndasPage'
 
 function App() {
 
   return (
     <Routes>
-      <Route></Route>
+      <Route path= "/" element={<MicroOndasPage/>}></Route>
     </Routes>
 
   )
