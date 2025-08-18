@@ -10,7 +10,7 @@ interface Props {
     handleInputValue: (event: ChangeEvent<HTMLInputElement>, field: string) => void
 }
 
-const MicroOndasFormsInput = (props: Props) => {
+const KeyBoardFormsInput = (props: Props) => {
     
     return (
         <div className="flex flex-col gap-2">
@@ -28,4 +28,4 @@ const MicroOndasFormsInput = (props: Props) => {
     )
 }
 
-export default MicroOndasFormsInput;
+export default KeyBoardFormsInput;

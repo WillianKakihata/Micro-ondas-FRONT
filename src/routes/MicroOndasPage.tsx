@@ -5,6 +5,7 @@ import type { MicroOndasType } from "../types/MicroOndasType"
 
 const MicroOndasPage = () => {
     const microOndasContext = useContext(MicroOndasContext)
+    const [keyboardVisible, setKeyboardVisible] = useState(false)
     const [microOndasForms, setMicroOndasForms] = useState<MicroOndasType>({
         potencia: 0,
         tempo: 0
@@ -16,6 +17,8 @@ const MicroOndasPage = () => {
             [fieldId]: event.target.value
         }))
     }
+    
+   
 
     const [potenciaValue,setPotenciaValue] = useState(
         {
@@ -49,9 +52,10 @@ const MicroOndasPage = () => {
                         <h1 className="text-base-content text-[20px] font-medium text-center mb-5"></h1>
                         <MicroOndasFormsBox>
                              <div className="w-full flex flex-col gap-5">
-                                <MicroOndasFormsInput type={potenciaValue.fieldType} id={potenciaValue.fieldId} label={potenciaValue.fieldLabel} placeholder={potenciaValue.fieldPlaceholder} value={microOndasForms.potencia} handleInputValue={handleInputValue}></MicroOndasFormsInput>
-                                <MicroOndasFormsInput type={tempoValue.fieldType} id={tempoValue.fieldId} label={tempoValue.fieldLabel} placeholder={tempoValue.fieldPlaceholder} value={microOndasForms.tempo} handleInputValue={handleInputValue}></MicroOndasFormsInput>
+                                <MicroOndasFormsInput type={potenciaValue.fieldType} id={potenciaValue.fieldId} label={potenciaValue.fieldLabel} placeholder={potenciaValue.fieldPlaceholder} value={microOndasForms.potencia} handleInputValue={handleInputValue} imageIcon="src\assets\teclado-de-discagem.svg"></MicroOndasFormsInput>
+                                <MicroOndasFormsInput type={tempoValue.fieldType} id={tempoValue.fieldId} label={tempoValue.fieldLabel} placeholder={tempoValue.fieldPlaceholder} value={microOndasForms.tempo} handleInputValue={handleInputValue} imageIcon="src\assets\teclado-de-discagem.svg"></MicroOndasFormsInput>
                                 <button className="text-zinc-950 w-full p-[10px] bg-primary rounded-lg cursor-pointer">Enviar</button>
+                                
                                 
                             </div>
                         </MicroOndasFormsBox>
