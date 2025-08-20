@@ -46,7 +46,7 @@ const AquecimentoDisplay = ({ tempo, potencia = 10, onComplete }: Props) => {
             });
 
             totalSegundos -= 1;
-        }, 150);
+        }, 1000);
 
         return () => clearInterval(interval);
     }, [tempo, potencia, onComplete]);

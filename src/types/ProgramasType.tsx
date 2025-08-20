@@ -1,4 +1,5 @@
 export type ProgramasType = {
+    id: number
     nome: string
     alimento: string
     potencia: number
