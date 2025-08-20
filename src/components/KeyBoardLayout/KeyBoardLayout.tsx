@@ -1,63 +1,47 @@
-import { useState } from "react";
 import KeyboardBox from "./components/KeyboardBox"
-import KeyBoardFormsInput from "./components/KeyBoardFormsInput"
 
-const PageLayoutKeyBoard = () => {
-    const [inputValue, setInputValue] = useState('');
-
-    const handleNumberClick = (number: number) => {
-        setInputValue(inputValue + number);
-    };
-
-    const handleClear = () => {
-        setInputValue('');
-    };
-
-    const handleDelete = () => {
-        setInputValue(inputValue.slice(0, -1));
-    };
-
-
-    return (
-        <div className="w-[160px] lg:w-[300px] flex lg:block justify-center">
-            <div className="w-full flex justify-center lg:justify-end">
-                <div className="">
-                    <h1 className="text-base-content text-[20px] font-medium text-center mb-5 "></h1>
-                    <KeyboardBox>
-                        <div>
-                            <div className="w-full flex flex-row gap-10 ">
-                                {[7, 8, 9].map((number) => (
-                                    <button className='text-[50px] text-white' key={number} onClick={() => handleNumberClick(number)}>
-                                        {number}
-                                    </button>
-                                ))}
-                            </div>
-                            <div className="w-full flex flex-row gap-10">
-                                {[4, 5, 6].map((number) => (
-                                    <button className='text-[50px] text-white' key={number} onClick={() => handleNumberClick(number)}>
-                                        {number}
-                                    </button>
-                                ))}
-                            </div>
-                            <div className="w-full flex flex-row gap-10">
-                                {[1, 2, 3].map((number) => (
-                                    <button className='text-[50px] text-white' key={number} onClick={() => handleNumberClick(number)}>
-                                        {number}
-                                    </button>
-                                ))}
-                            </div>
-                            <div className="w-full flex flex-row gap-13">
-                                <button className='text-[50px] text-white ' onClick={() => handleNumberClick(0)}>0</button>
-                                <button className='text-[50px] text-white' onClick={handleDelete}>⌫</button>
-                                <button className='text-[50px] text-white' onClick={handleClear}>C</button>
-                            </div>
-                        </div>
-
-                    </KeyboardBox>
-                </div>
-            </div>
-        </div>
-    )
+interface Props {
+  onNumberClick: (num: number) => void
+  onDelete: () => void
+  onClear: () => void
+  onClose: () => void
 }
 
-export default PageLayoutKeyBoard;
+const PageLayoutKeyBoard = ({ onNumberClick, onDelete, onClear, onClose }: Props) => {
+  return (
+    <KeyboardBox>
+      <div className="flex flex-col gap-4">
+        {[ [7,8,9], [4,5,6], [1,2,3] ].map((row, i) => (
+          <div key={i} className="flex flex-row gap-6 justify-center">
+            {row.map((n) => (
+              <button
+                key={n}
+                type="button" 
+                className="text-[40px] lg:text-[50px] text-white"
+                onClick={() => onNumberClick(n)}
+              >
+                {n}
+              </button>
+            ))}
+          </div>
+        ))}
+        <div className="flex flex-row gap-6 justify-center">
+          <button type="button" className="text-[40px] lg:text-[50px] text-white" onClick={() => onNumberClick(0)}>0</button>
+          <button type="button" className="text-[40px] lg:text-[50px] text-white" onClick={onDelete}>⌫</button>
+          <button type="button" className="text-[40px] lg:text-[50px] text-white" onClick={onClear}>C</button>
+        </div>
+        <div className="flex justify-center mt-2">
+          <button
+            type="button"
+            className="text-[20px] text-white px-4 py-2 border border-white rounded-lg"
+            onClick={onClose}
+          >
+            Fechar
+          </button>
+        </div>
+      </div>
+    </KeyboardBox>
+  )
+}
+
+export default PageLayoutKeyBoard

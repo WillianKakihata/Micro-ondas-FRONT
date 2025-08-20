@@ -7,8 +7,7 @@ function App() {
 
   return (
     <Routes>
-      <Route path= "/" element={<MicroOndasPage/>}></Route>
-      <Route path= "/key" element={<PageLayoutKeyBoard/>}></Route>
+      <Route path= "" element={<MicroOndasPage/>}></Route>
     </Routes>
 
   )

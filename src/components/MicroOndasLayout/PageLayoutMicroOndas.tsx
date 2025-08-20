@@ -18,9 +18,7 @@ const PageLayoutMicroOndas = (props: Props) => {
                 <div className="flex justify-center xl:mt-10 items-end gap-[10px] text-wrap">
                     {props.pageText}
                 </div>
-
             </div>
-
         </div>
     )
 }
