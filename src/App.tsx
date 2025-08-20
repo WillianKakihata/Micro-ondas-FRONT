@@ -1,7 +1,6 @@
 
 import { Route, Routes } from 'react-router'
 import MicroOndasPage from './routes/MicroOndasPage'
-import PageLayoutKeyBoard from './components/KeyBoardLayout/KeyBoardLayout'
 
 function App() {
 
