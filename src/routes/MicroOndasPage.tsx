@@ -7,6 +7,8 @@ import { MicroOndasValidator } from "../utils/validator";
 import { useApi } from "../hooks/UseApi";
 import type { MicroOndasType } from "../types/MicroOndasType";
 import Timer from "../components/Timer/LayoutTimer";
+import ProgramasList from "../components/ProgramaListagem/ProgramaList";
+import type { ProgramasType } from "../types/ProgramasType";
 
 const validator = new MicroOndasValidator();
 
@@ -20,6 +22,15 @@ const MicroOndasPage = () => {
     const [microOndasForms, setMicroOndasForms] = useState<MicroOndasType>({ potencia: 0, tempo: 0, execucao: true, status: 0 });
     const [tempoRestante, setTempoRestante] = useState(0);
     const [errors, setErrors] = useState<{ potencia?: string; tempo?: string }>({});
+    const [programas, setProgramas] = useState<ProgramasType[]>([]);
+
+    useEffect(() => {
+        const fetchProgramas = async () => {
+            const data = await api.getProgramas();
+            setProgramas(data);
+        };
+        fetchProgramas();
+    }, []);
 
     const handleKeyboardToggle = (field: "potencia" | "tempo") => {
         setKeyboardVisible(prev => !(prev && activeField === field));
@@ -64,7 +75,6 @@ const MicroOndasPage = () => {
     const handleIniciarAquecimento = async () => {
         const tempoFinal = microOndasForms.tempo;
         const potenciaFinal = microOndasForms.potencia || validator.potenciaPadrao();
-
         const tempoValido = validator.validarTempo(tempoFinal);
         const potenciaValida = validator.validarPotencia(potenciaFinal);
 
@@ -77,7 +87,6 @@ const MicroOndasPage = () => {
 
         try {
             const response = await api.iniciarAquecimento(potenciaFinal, tempoFinal);
-
             setMicroOndasForms(prev => ({
                 ...prev,
                 tempo: response.tempo ?? prev.tempo,
@@ -85,47 +94,32 @@ const MicroOndasPage = () => {
                 execucao: response.execucao ?? prev.execucao,
                 status: response.status ?? prev.status
             }));
-
             setTempoRestante(response.tempo ?? tempoFinal);
             setMostrarAquecimento(true);
-
         } catch (error) {
             console.error("Erro ao iniciar aquecimento:", error);
         }
     };
 
-    const handlePausarDesligar = async () => {
-        try {
-            console.log({
-                potencia: microOndasForms.potencia,
-                tempo: tempoRestante,
-                execucao: microOndasForms.execucao,
-                status: microOndasForms.status
-            });
-            const response = await api.pausar_desligar(
-                microOndasForms.potencia,
-                tempoRestante,
-                microOndasForms.execucao,
-                microOndasForms.status
-            );
+    const handlePausarDesligar = () => {
+        let execucaoEnviar = microOndasForms.execucao;
+        let statusEnviar = microOndasForms.status;
 
-            setMicroOndasForms(prev => ({
-                ...prev,
-                tempo: response.tempo ?? prev.tempo,
-                potencia: response.potencia ?? prev.potencia,
-                execucao: response.execucao ?? prev.execucao,
-                status: response.status ?? prev.status
-            }));
-
-            if (response.status === 0 || response.status === 1) {
-                setMostrarAquecimento(true);
-            } else if (response.status === 2) {
-                setMostrarAquecimento(false);
-                setTempoRestante(0);
-            }
-        } catch (error) {
-            console.error("Erro ao pausar/desligar:", error);
+        if (microOndasForms.status === 0 && microOndasForms.execucao) {
+            execucaoEnviar = false;
+            statusEnviar = 1;
+        } else if (microOndasForms.status === 1 && !microOndasForms.execucao) {
+            execucaoEnviar = true;
+            statusEnviar = 0;
         }
+
+        setMicroOndasForms(prev => ({
+            ...prev,
+            execucao: execucaoEnviar,
+            status: statusEnviar,
+        }));
+
+        setMostrarAquecimento(execucaoEnviar);
     };
 
     const handleAcrescentarTempo = async () => {
@@ -136,7 +130,6 @@ const MicroOndasPage = () => {
                 microOndasForms.execucao,
                 microOndasForms.status
             );
-
             setTempoRestante(response.tempo);
             setMicroOndasForms(prev => ({
                 ...prev,
@@ -148,7 +141,7 @@ const MicroOndasPage = () => {
         } catch (error) {
             console.error("Erro ao acrescentar tempo:", error);
         }
-    };;
+    };
 
     const handleIniciarRapido = async () => {
         try {
@@ -157,37 +150,34 @@ const MicroOndasPage = () => {
             const potencia = response.data?.potencia ?? 10;
             const execucao = response.data?.execucao ?? true;
             const status = response.data?.status ?? 0;
-
-            setMicroOndasForms({
-                potencia,
-                tempo,
-                execucao,
-                status
-            });
-
+            setMicroOndasForms({ potencia, tempo, execucao, status });
             setTempoRestante(tempo);
-            setMostrarAquecimento(true);
-
+            setMostrarAquecimento(execucao);
             await api.iniciarAquecimento(potencia, tempo);
-
-            console.log("Início rápido:", { tempo, potencia });
         } catch (error) {
             console.error("Erro ao iniciar rápido:", error);
         }
     };
+
     return (
         <div>
             <Menu />
             <div className="flex w-full min-h-screen gap-5 p-5">
-
                 <PageLayoutMicroOndas right={true} pageText={<p className="text-xl"></p>}>
                     <div className="w-[320px] lg:w-[384px] flex lg:block justify-center">
                         {mostrarAquecimento && (
                             <div className="mb-4 text-center text-2xl font-bold">
                                 <Timer
                                     tempoInicial={tempoRestante}
-                                    ativo={tempoRestante>0}
-                                    onComplete={() => setMostrarAquecimento(true)}
+                                    execucao={microOndasForms.execucao}
+                                    onComplete={() => {
+                                        setMostrarAquecimento(false);
+                                        setMicroOndasForms(prev => ({
+                                            ...prev,
+                                            execucao: false,
+                                            status: 1,
+                                        }));
+                                    }}
                                 />
                             </div>
                         )}
@@ -236,7 +226,7 @@ const MicroOndasPage = () => {
                                 <button
                                     type="button"
                                     className="text-zinc-950 w-full p-[10px] bg-tertiary rounded-lg cursor-pointer"
-                                    onClick={() => handleAcrescentarTempo()}
+                                    onClick={handleAcrescentarTempo}
                                 >
                                     +30s
                                 </button>
@@ -259,6 +249,18 @@ const MicroOndasPage = () => {
                                 onClose={() => { setKeyboardVisible(false); setActiveField(null); }}
                             />
                         )}
+
+                        <ProgramasList
+                            programas={Array.isArray(programas) ? programas : []}
+                            onSelecionar={(p) => {
+                                setMicroOndasForms({
+                                    potencia: p.potencia,
+                                    tempo: p.tempo,
+                                    execucao: p.execucao,
+                                    status: p.status
+                                });
+                            }}
+                        />
                     </div>
                 </PageLayoutMicroOndas>
 

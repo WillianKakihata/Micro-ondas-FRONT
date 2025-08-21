@@ -1,47 +1,56 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type TimerProps = {
-    tempoInicial: number;
-    ativo: boolean;
-    onComplete: () => void;
+  tempoInicial: number;
+  execucao: boolean; // true = rodando, false = pausado
+  onComplete: () => void;
 };
 
-const Timer = ({ tempoInicial, ativo, onComplete }: TimerProps) => {
-    const [tempoRestante, setTempoRestante] = useState(tempoInicial);
+const Timer = ({ tempoInicial, execucao, onComplete }: TimerProps) => {
+  const [tempoRestante, setTempoRestante] = useState(tempoInicial);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-    useEffect(() => {
-        setTempoRestante(tempoInicial);
-    }, [tempoInicial]);
+  // Atualiza tempo inicial sempre que ele mudar
+  useEffect(() => {
+    setTempoRestante(tempoInicial);
+  }, [tempoInicial]);
 
-    useEffect(() => {
-        if (!ativo) return;
-        if (tempoRestante <= 0) {
-            const t = setTimeout(() => onComplete(), 0);
-            return () => clearTimeout(t);
-        }
+  useEffect(() => {
+    // Limpa intervalo anterior
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
 
-        const timer = setInterval(() => {
-            setTempoRestante(prev => {
-                if (prev <= 1) {
-                    clearInterval(timer);
-                    onComplete();
-                    return 0;
-                }
-                return prev - 1;
-            });
-        }, 1000);
+    if (execucao && tempoRestante > 0) {
+      intervalRef.current = setInterval(() => {
+        setTempoRestante(prev => {
+          if (prev <= 1) {
+            clearInterval(intervalRef.current!);
+            intervalRef.current = null;
+            onComplete();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
 
-        return () => clearInterval(timer);
-    }, [ativo, tempoRestante, onComplete]);
-
-
-    const formatarTempo = (segundos: number) => {
-        const min = Math.floor(segundos / 60);
-        const sec = segundos % 60;
-        return `${min}:${sec.toString().padStart(2, "0")}`;
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
     };
+  }, [execucao, onComplete, tempoRestante]);
 
-    return <span>{formatarTempo(tempoRestante)}</span>;
+  const formatarTempo = (segundos: number) => {
+    const min = Math.floor(segundos / 60);
+    const sec = segundos % 60;
+    return `${min}:${sec.toString().padStart(2, "0")}`;
+  };
+
+  return <span>{formatarTempo(tempoRestante)}</span>;
 };
 
 export default Timer;

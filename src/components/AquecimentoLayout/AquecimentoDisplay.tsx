@@ -10,24 +10,23 @@ const AquecimentoDisplay = ({ tempo, potencia = 10, onComplete }: Props) => {
     const [display, setDisplay] = useState<string>("");
     const [fontSize, setFontSize] = useState<number>(30);
     const containerRef = useRef<HTMLDivElement>(null);
+    const segundosRef = useRef(tempo);
 
-    const maxCharsPorLinha = 100; 
+    const maxCharsPorLinha = 100;
 
     useEffect(() => {
-        let totalSegundos = tempo;
+        segundosRef.current = tempo;
         setDisplay("");
 
         const interval = setInterval(() => {
-            if (totalSegundos <= 0) {
+            if (segundosRef.current <= 0) {
                 setDisplay((prev) => prev + "\n\n Aquecimento concluído!");
                 clearInterval(interval);
 
-        
                 setTimeout(() => {
-                    setDisplay(""); 
+                    setDisplay("");
                     onComplete && onComplete();
                 }, 5000);
-
                 return;
             }
 
@@ -45,7 +44,7 @@ const AquecimentoDisplay = ({ tempo, potencia = 10, onComplete }: Props) => {
                 }
             });
 
-            totalSegundos -= 1;
+            segundosRef.current -= 1;
         }, 1000);
 
         return () => clearInterval(interval);
